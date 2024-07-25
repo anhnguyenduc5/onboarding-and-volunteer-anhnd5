@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -26,10 +27,15 @@ func NewDepartmentHandler(usecase *usecase.DepartmentUsecase) *DepartmentHandler
 // @Accept json
 // @Produce json
 // @Tags department
+// @Security bearerToken
 // @Param department body dto.DepartmentCreateDTO true "Department data"
 // @Success 201 {object} domain.Department
 // @Router /api/v1/departments [post]
 func (h *DepartmentHandler) CreateDepartment(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	var input dto.DepartmentCreateDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -43,6 +49,24 @@ func (h *DepartmentHandler) CreateDepartment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, department)
+}
+
+// GetAllDepartments handles the HTTP GET request to retrieve all departments.
+// GetAllDepartments godoc
+// @Summary Get all departments
+// @Description Get all departments
+// @Produce json
+// @Tags department
+// @Success 200 {array} domain.Department
+// @Router /api/v1/departments [get]
+func (h *DepartmentHandler) GetAllDepartments(c *gin.Context) {
+	departments, err := h.usecase.GetAllDepartments()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, departments)
 }
 
 // GetDepartmentByID handles the HTTP GET request to retrieve a department by its ID.
@@ -77,11 +101,16 @@ func (h *DepartmentHandler) GetDepartmentByID(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Tags department
+// @Security bearerToken
 // @Param id path int true "Department ID"
 // @Param department body dto.DepartmentUpdateDTO true "Department data"
 // @Success 200 {object} domain.Department
 // @Router /api/v1/departments/{id} [put]
 func (h *DepartmentHandler) UpdateDepartment(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
@@ -109,10 +138,15 @@ func (h *DepartmentHandler) UpdateDepartment(c *gin.Context) {
 // @Description Delete department
 // @Produce json
 // @Tags department
+// @Security bearerToken
 // @Param id path int true "Department ID"
 // @Success 204
 // @Router /api/v1/departments/{id} [delete]
 func (h *DepartmentHandler) DeleteDepartment(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
@@ -126,4 +160,12 @@ func (h *DepartmentHandler) DeleteDepartment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func (h *DepartmentHandler) checkAdminRole(c *gin.Context) error {
+	roleId, exists := c.Get("roleId")
+	if !exists || roleId.(int) != 1 {
+		return errors.New("forbidden: only admins can perform this action")
+	}
+	return nil
 }

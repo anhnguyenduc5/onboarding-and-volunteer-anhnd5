@@ -1,15 +1,13 @@
 package usecase
 
 import (
-	"time"
-
-	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/domain"
+	"errors"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/dto"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/storage"
 )
 
 type ApplicantUsecaseInterface interface {
-	CreateApplicant(request dto.ApplicantCreateDTO) error
+	//CreateApplicant(request dto.ApplicantCreateDTO) error
 	UpdateApplicant(id int, request dto.AppplicantUpdateDTO) error
 	DeleteApplicant(id int) error
 	FindApplicantByID(id int) (*dto.ApplicantResponseDTO, error)
@@ -23,33 +21,45 @@ func NewApplicantUsecase(userRepo storage.ApplicantRepositoryInterface) *Applica
 	return &ApplicantUsecase{ApplicantRepo: userRepo}
 }
 
-func (u *ApplicantUsecase) CreateApplicant(request dto.ApplicantCreateDTO) error {
-	user := &domain.ApplicantDomain{
-		Email:   request.Email,
-		Name:    request.Name,
-		Surname: request.Surname,
-	}
-	return u.ApplicantRepo.CreateApplicant(user)
-}
+//func (u *ApplicantUsecase) CreateApplicant(request dto.ApplicantCreateDTO) error {
+//	user := &domain.User{
+//		Email:   request.Email,
+//		Name:    request.Name,
+//		Surname: request.Surname,
+//	}
+//	return u.ApplicantRepo.CreateApplicant(user)
+//}
 
 func (u *ApplicantUsecase) UpdateApplicant(id int, request dto.AppplicantUpdateDTO) error {
+	//Validate input
+	input := dto.ValidateInputDTO{
+		Gender: request.Gender,
+		Mobile: request.Mobile,
+	}
+	err := ValidateInput(input)
+	if err != nil {
+		return err
+	}
 	user, err := u.ApplicantRepo.FindApplicantByID(id)
 	if err != nil {
 		return err
 	}
 	//Thay doi request DOB ve dang time.Time
-	dob, err := time.Parse("2006-01-02", request.DOB)
 	if err != nil {
 		return err
 	}
-
-	user.Email = request.Email
+	parsedTime, err := StringToTimePtr(request.DOB)
+	if err != nil {
+		return errors.New("invalid date of birth")
+	}
+	if !IsOlderThan15Years(parsedTime) {
+		return errors.New("applicant must be older than 15 years")
+	}
 	user.Name = request.Name
 	user.Surname = request.Surname
 	user.Gender = request.Gender
-	user.DOB = dob
+	user.Dob = parsedTime
 	user.Mobile = request.Mobile
-	user.RoleID = request.RoleID
 	user.CountryID = request.CountryID
 	user.ResidentCountryID = request.ResidentCountryID
 	user.DepartmentID = request.DepartmentID
@@ -73,7 +83,7 @@ func (u *ApplicantUsecase) FindApplicantByID(id int) (*dto.ApplicantResponseDTO,
 		Name:              user.Name,
 		Surname:           user.Surname,
 		Gender:            user.Gender,
-		DOB:               user.DOB.String(),
+		DOB:               user.Dob,
 		Mobile:            user.Mobile,
 		RoleID:            user.RoleID,
 		CountryID:         user.CountryID,

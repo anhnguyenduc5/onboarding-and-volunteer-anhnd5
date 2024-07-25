@@ -7,7 +7,14 @@ import (
 	authStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/storage"
 	authTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/transport"
 	authUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/usecase"
+	countryStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/country/storage"
+	countryTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/country/transport"
+	countryUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/country/usecase"
+	deptStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/department/storage"
+	deptTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/department/transport"
+	deptUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/department/usecase"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/middleware"
+	roleStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/role/storage"
 	userStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/user/storage"
 	userTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/user/transport"
 	userUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/user/usecase"
@@ -18,6 +25,8 @@ import (
 	appliIdentityTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/user_identity/transport"
 	appliIdentityUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/user_identity/usecase"
 
+	roleTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/role/transport"
+	roleUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/role/usecase"
 	volunteerStorage "github.com/cesc1802/onboarding-and-volunteer-service/feature/volunteer/storage"
 	volunteerTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/volunteer/transport"
 	volunteerUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/volunteer/usecase"
@@ -49,7 +58,9 @@ func RegisterHandlerV1(mono system.Service) {
 	applicantIdentityRepo := appliIdentityStorage.NewUserIdentityRepository(mono.DB())
 	volunteerRepo := volunteerStorage.NewVolunteerRepository(mono.DB())
 	volunteerRequestRepo := userStorage.NewVolunteerRequestRepository(mono.DB())
-
+	roleRepo := roleStorage.NewRoleRepository(mono.DB())
+	deptRepo := deptStorage.NewDepartmentRepository(mono.DB())
+	countryRepo := countryStorage.NewCountryRepository(mono.DB())
 	// Initialize usecase
 	authUseCase := authUsecase.NewUserUsecase(authRepo, secretKey)
 	userUseCase := userUsecase.NewAdminUsecase(userRepo)
@@ -58,7 +69,9 @@ func RegisterHandlerV1(mono system.Service) {
 	applicantIdenityUseCase := appliIdentityUsecase.NewUserIdentityUsecase(applicantIdentityRepo)
 	volunteerUseCase := volunteerUsecase.NewVolunteerUsecase(volunteerRepo)
 	volunteerRequestUseCase := userUsecase.NewVolunteerRequestUsecase(volunteerRequestRepo)
-
+	roleUseCase := roleUsecase.NewRoleUsecase(roleRepo)
+	deptUseCase := deptUsecase.NewDepartmentUsecase(deptRepo)
+	countryUseCase := countryUsecase.NewCountryUsecase(countryRepo)
 	// Initialize handler
 	authHandler := authTransport.NewAuthenticationHandler(authUseCase)
 	userHandler := userTransport.NewAuthenticationHandler(userUseCase)
@@ -67,7 +80,9 @@ func RegisterHandlerV1(mono system.Service) {
 	applicantIdentityHandler := appliIdentityTransport.NewUserIdentityHandler(applicantIdenityUseCase)
 	volunteerHandler := volunteerTransport.NewVolunteerHandler(volunteerUseCase)
 	volunteerRequestHandler := userTransport.NewVolunteerRequestHandler(volunteerRequestUseCase)
-
+	roleHandler := roleTransport.NewRoleHandler(roleUseCase)
+	deptHandler := deptTransport.NewDepartmentHandler(deptUseCase)
+	countryHandler := countryTransport.NewCountryHandler(countryUseCase)
 	auth := v1.Group("/auth")
 	{
 		auth.POST("/login", authHandler.Login)
@@ -86,11 +101,12 @@ func RegisterHandlerV1(mono system.Service) {
 		admin.POST("/reject-request/:id", userHandler.RejectRequest)
 		admin.POST("/add-reject-notes/:id", userHandler.AddRejectNotes)
 		admin.DELETE("/delete-request/:id", userHandler.DeleteRequest)
+		admin.PUT("/active-user/:id", userHandler.ActiveUser)
+		admin.PUT("/deactive-user/:id", userHandler.DeactiveUser)
 	}
 
 	applicant := v1.Group("/applicant")
 	{
-		applicant.POST("/", applicantHandler.CreateApplicant)
 		applicant.PUT("/:id", applicantHandler.UpdateApplicant)
 		applicant.DELETE("/:id", applicantHandler.DeleteApplicant)
 		applicant.GET("/:id", applicantHandler.FindApplicantByID)
@@ -114,10 +130,38 @@ func RegisterHandlerV1(mono system.Service) {
 		volunteer.PUT("/:id", volunteerHandler.UpdateVolunteer)
 		volunteer.DELETE("/:id", volunteerHandler.DeleteVolunteer)
 		volunteer.GET("/:id", volunteerHandler.FindVolunteerByID)
+		volunteer.GET("/", volunteerHandler.GetAllVolunteers)
 	}
 
 	volRequest := v1.Group("/volunteer-request")
 	{
 		volRequest.POST("/", volunteerRequestHandler.CreateVolunteerRequest)
+	}
+
+	role := v1.Group("/role")
+	{
+		role.POST("/", roleHandler.CreateRole)
+		role.PUT("/:id", roleHandler.UpdateRole)
+		role.DELETE("/:id", roleHandler.DeleteRole)
+		role.GET("/:id", roleHandler.GetRoleByID)
+		role.GET("/", roleHandler.GetAllRoles)
+	}
+
+	dept := v1.Group("/departments")
+	{
+		dept.POST("/", deptHandler.CreateDepartment)
+		dept.PUT("/:id", deptHandler.UpdateDepartment)
+		dept.DELETE("/:id", deptHandler.DeleteDepartment)
+		dept.GET("/:id", deptHandler.GetDepartmentByID)
+		dept.GET("/", deptHandler.GetAllDepartments)
+	}
+
+	country := v1.Group("/countries")
+	{
+		country.POST("/", countryHandler.CreateCountry)
+		country.PUT("/:id", countryHandler.UpdateCountry)
+		country.DELETE("/:id", countryHandler.DeleteCountry)
+		country.GET("/:id", countryHandler.GetCountryByID)
+		country.GET("/", countryHandler.GetAllCountries)
 	}
 }

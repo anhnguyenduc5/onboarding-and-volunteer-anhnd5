@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"errors"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/dto"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/usecase"
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,10 @@ func NewAuthenticationHandler(usecase usecase.AdminUsecaseInterface) *AdminHandl
 // @Success 200 {object} dto.ListRequest{}
 // @Router /api/v1/admin/list-pending-request [get]
 func (h *AdminHandler) GetListPendingRequest(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	resp, msg := h.usecase.GetListPendingRequest()
 	if msg != "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": msg})
@@ -43,6 +48,10 @@ func (h *AdminHandler) GetListPendingRequest(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/pending-request/{id} [get]
 func (h *AdminHandler) GetPendingRequestById(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -65,6 +74,10 @@ func (h *AdminHandler) GetPendingRequestById(c *gin.Context) {
 // @Success 200 {object} dto.ListRequest{}
 // @Router /api/v1/admin/list-request [get]
 func (h *AdminHandler) GetListRequest(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	resp, msg := h.usecase.GetListRequest()
 	if msg != "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": msg})
@@ -83,6 +96,10 @@ func (h *AdminHandler) GetListRequest(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/request/{id} [get]
 func (h *AdminHandler) GetRequestById(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -106,6 +123,10 @@ func (h *AdminHandler) GetRequestById(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/approve-request/{id} [post]
 func (h *AdminHandler) ApproveRequest(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -130,6 +151,10 @@ func (h *AdminHandler) ApproveRequest(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/reject-request/{id} [post]
 func (h *AdminHandler) RejectRequest(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -155,6 +180,10 @@ func (h *AdminHandler) RejectRequest(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/add-reject-notes/{id} [post]
 func (h *AdminHandler) AddRejectNotes(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -179,6 +208,10 @@ func (h *AdminHandler) AddRejectNotes(c *gin.Context) {
 // @Security bearerToken
 // @Router /api/v1/admin/delete-request/{id} [delete]
 func (h *AdminHandler) DeleteRequest(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
@@ -186,4 +219,58 @@ func (h *AdminHandler) DeleteRequest(c *gin.Context) {
 	}
 	msg := h.usecase.DeleteRequest(id)
 	c.JSON(http.StatusOK, gin.H{"message": msg})
+}
+
+// ActiveUser godoc
+// @Summary Active user
+// @Description Active user
+// @Produce json
+// @Tags admin
+// @Param id path int true "User ID"
+// @Success 200 string message
+// @Security bearerToken
+// @Router /api/v1/admin/active-user/{id} [put]
+func (h *AdminHandler) ActiveUser(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	msg := h.usecase.ActiveUser(id)
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}
+
+// DeactiveUser godoc
+// @Summary Deactive user
+// @Description Deactive user
+// @Produce json
+// @Tags admin
+// @Param id path int true "User ID"
+// @Success 200 string message
+// @Security bearerToken
+// @Router /api/v1/admin/deactive-user/{id} [put]
+func (h *AdminHandler) DeactiveUser(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	msg := h.usecase.DeactiveUser(id)
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}
+
+func (h *AdminHandler) checkAdminRole(c *gin.Context) error {
+	roleId, exists := c.Get("roleId")
+	if !exists || roleId.(int) != 1 {
+		return errors.New("forbidden: only admins can perform this action")
+	}
+	return nil
 }

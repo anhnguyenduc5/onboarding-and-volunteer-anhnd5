@@ -11,6 +11,7 @@ type VolunteerUsecaseInterface interface {
 	UpdateVolunteer(id int, input dto.VolunteerUpdateDTO) error
 	DeleteVolunteer(id int) error
 	FindVolunteerByID(id int) (*dto.VolunteerResponseDTO, error)
+	GetAllVolunteers() ([]dto.VolunteerResponseDTO, error)
 }
 
 type VolunteerUsecase struct {
@@ -22,7 +23,7 @@ func NewVolunteerUsecase(volunteerRepo storage.VolunteerRepositoryInterface) *Vo
 }
 
 func (u *VolunteerUsecase) CreateVolunteer(input dto.VolunteerCreateDTO) error {
-	volunteer := &domain.Volunteer{
+	volunteer := &domain.VolunteerDetails{
 		UserID:       input.UserID,
 		DepartmentID: input.DepartmentID,
 		Status:       input.Status,
@@ -55,6 +56,23 @@ func (u *VolunteerUsecase) FindVolunteerByID(id int) (*dto.VolunteerResponseDTO,
 		UserID:       volunteer.UserID,
 		DepartmentID: volunteer.DepartmentID,
 		Status:       volunteer.Status,
+	}
+	return response, nil
+}
+
+func (u *VolunteerUsecase) GetAllVolunteers() ([]dto.VolunteerResponseDTO, error) {
+	volunteers, err := u.VolunteerRepo.GetAllVolunteers()
+	if err != nil {
+		return nil, err
+	}
+	var response []dto.VolunteerResponseDTO
+	for _, volunteer := range volunteers {
+		response = append(response, dto.VolunteerResponseDTO{
+			ID:           volunteer.ID,
+			UserID:       volunteer.UserID,
+			DepartmentID: volunteer.DepartmentID,
+			Status:       volunteer.Status,
+		})
 	}
 	return response, nil
 }

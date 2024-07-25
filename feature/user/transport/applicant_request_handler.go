@@ -17,16 +17,16 @@ func NewApplicantRequestHandler(requestUsecase usecase.ApplicantRequestUsecaseIn
 	return &RequestHandler{RequestUsecase: requestUsecase}
 }
 
-// CreateRequest godoc
+// CreateApplicantRequest godoc
 // @Summary Create request
 // @Description Create request
 // @Produce json
 // @Tags request
-// @Param request body dto.ApplicantRequestCreatingDTO true "Create Request Request"
+// @Param request body dto.RequestCreatingDTO true "Create Applicant Request"
 // @Success 201 {string} message "Request created successfully"
 // @Router /api/v1/applicant-request/ [post]
 func (h *RequestHandler) CreateApplicantRequest(c *gin.Context) {
-	var request dto.ApplicantRequestCreatingDTO
+	var request dto.RequestCreatingDTO
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

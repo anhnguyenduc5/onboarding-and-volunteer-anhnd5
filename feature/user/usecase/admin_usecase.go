@@ -14,6 +14,8 @@ type AdminUsecaseInterface interface {
 	RejectRequest(id int, verifier_id int) string
 	AddRejectNotes(id int, notes string) string
 	DeleteRequest(id int) string
+	ActiveUser(id int) string
+	DeactiveUser(id int) string
 }
 
 type AdminUsecase struct {
@@ -94,4 +96,10 @@ func (u *AdminUsecase) AddRejectNotes(id int, notes string) string {
 }
 func (u *AdminUsecase) DeleteRequest(id int) string {
 	return u.repo.DeleteRequest(id)
+}
+func (u *AdminUsecase) ActiveUser(id int) string {
+	return u.repo.ActiveUser(id)
+}
+func (u *AdminUsecase) DeactiveUser(id int) string {
+	return u.repo.DeactiveUser(id)
 }

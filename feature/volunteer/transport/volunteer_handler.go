@@ -99,7 +99,7 @@ func (h *VolunteerHandler) DeleteVolunteer(c *gin.Context) {
 // @Produce json
 // @Tags volunteer
 // @Param id path int true "Volunteer ID"
-// @Success 200 {object} domain.Volunteer
+// @Success 200 {object} domain.VolunteerDetails
 // @Router /api/v1/volunteer/{id} [get]
 func (h *VolunteerHandler) FindVolunteerByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -115,4 +115,21 @@ func (h *VolunteerHandler) FindVolunteerByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, volunteer)
+}
+
+// GetAllVolunteers godoc
+// @Summary Get all volunteers
+// @Description Get all volunteers
+// @Produce json
+// @Tags volunteer
+// @Success 200 {object} domain.VolunteerDetails
+// @Router /api/v1/volunteer/ [get]
+func (h *VolunteerHandler) GetAllVolunteers(c *gin.Context) {
+	volunteers, err := h.VolUsecaseH.GetAllVolunteers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, volunteers)
 }

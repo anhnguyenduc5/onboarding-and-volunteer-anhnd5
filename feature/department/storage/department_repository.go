@@ -20,6 +20,12 @@ func (r *DepartmentRepository) Create(department *domain.Department) error {
 	return r.DB.Create(department).Error
 }
 
+func (r *DepartmentRepository) GetAll() ([]domain.Department, error) {
+	var departments []domain.Department
+	err := r.DB.Find(&departments).Error
+	return departments, err
+}
+
 // GetByID retrieves a department record by its ID from the database.
 func (r *DepartmentRepository) GetByID(id uint) (*domain.Department, error) {
 	var department domain.Department

@@ -7,10 +7,10 @@ import (
 )
 
 type ApplicantRepositoryInterface interface {
-	CreateApplicant(user *domain.ApplicantDomain) error
-	UpdateApplicant(user *domain.ApplicantDomain) error
+	CreateApplicant(user *domain.User) error
+	UpdateApplicant(user *domain.User) error
 	DeleteApplicant(id int) error
-	FindApplicantByID(id int) (*domain.ApplicantDomain, error)
+	FindApplicantByID(id int) (*domain.User, error)
 }
 
 type ApplicantRepository struct {
@@ -21,20 +21,20 @@ func NewApplicantRepository(db *gorm.DB) *ApplicantRepository {
 	return &ApplicantRepository{DB: db}
 }
 
-func (r *ApplicantRepository) CreateApplicant(user *domain.ApplicantDomain) error {
+func (r *ApplicantRepository) CreateApplicant(user *domain.User) error {
 	return r.DB.Create(user).Error
 }
 
-func (r *ApplicantRepository) UpdateApplicant(user *domain.ApplicantDomain) error {
+func (r *ApplicantRepository) UpdateApplicant(user *domain.User) error {
 	return r.DB.Save(user).Error
 }
 
 func (r *ApplicantRepository) DeleteApplicant(id int) error {
-	return r.DB.Delete(&domain.ApplicantDomain{}, id).Error
+	return r.DB.Delete(&domain.User{}, id).Error
 }
 
-func (r *ApplicantRepository) FindApplicantByID(id int) (*domain.ApplicantDomain, error) {
-	var user domain.ApplicantDomain
+func (r *ApplicantRepository) FindApplicantByID(id int) (*domain.User, error) {
+	var user domain.User
 	if err := r.DB.First(&user, id).Error; err != nil {
 		return nil, err
 	}

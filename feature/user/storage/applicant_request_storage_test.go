@@ -11,7 +11,7 @@ import (
 func TestCreateApplicantRequest(t *testing.T) {
 	mockDB := new(MockDB)
 	repo := NewApplicantRequestRepository(&mockDB.DB)
-	appliRequest := &domain.ApplicantRequestDomain{
+	appliRequest := &domain.Request{
 		ID:     1,
 		UserID: 2,
 		Type:   "Application",

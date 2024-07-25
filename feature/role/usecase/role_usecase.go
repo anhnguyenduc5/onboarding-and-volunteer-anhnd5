@@ -26,6 +26,10 @@ func (u *RoleUsecase) CreateRole(input dto.RoleCreateDTO) (*domain.Role, error) 
 	return role, err
 }
 
+func (u *RoleUsecase) GetAllRoles() ([]domain.Role, error) {
+	return u.repo.GetAll()
+}
+
 // GetRoleByID retrieves a role by its ID.
 func (u *RoleUsecase) GetRoleByID(id uint) (*domain.Role, error) {
 	return u.repo.GetByID(id)

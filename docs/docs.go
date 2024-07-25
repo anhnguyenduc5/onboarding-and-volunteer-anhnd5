@@ -15,6 +15,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/admin/active-user/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
+                "description": "Active user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Active user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/admin/add-reject-notes/{id}": {
             "post": {
                 "security": [
@@ -77,6 +111,40 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Request ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/deactive-user/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
+                "description": "Deactive user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Deactive user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -386,49 +454,18 @@ const docTemplate = `{
                 "summary": "Create request",
                 "parameters": [
                     {
-                        "description": "Create Request Request",
+                        "description": "Create Applicant Request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ApplicantRequestCreatingDTO"
+                            "$ref": "#/definitions/dto.RequestCreatingDTO"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Request created successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/applicant/": {
-            "post": {
-                "description": "Create applicant",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "applicant"
-                ],
-                "summary": "Create applicant",
-                "parameters": [
-                    {
-                        "description": "Create Applicant Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApplicantCreateDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Applicant created successfully",
                         "schema": {
                             "type": "string"
                         }
@@ -591,7 +628,33 @@ const docTemplate = `{
             }
         },
         "/api/v1/countries": {
+            "get": {
+                "description": "Get all countries",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "country"
+                ],
+                "summary": "Get all countries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Country"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Create a new country",
                 "consumes": [
                     "application/json"
@@ -653,6 +716,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Update country",
                 "consumes": [
                     "application/json"
@@ -692,6 +760,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Delete country",
                 "tags": [
                     "country"
@@ -714,7 +787,33 @@ const docTemplate = `{
             }
         },
         "/api/v1/departments": {
+            "get": {
+                "description": "Get all departments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "department"
+                ],
+                "summary": "Get all departments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Department"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Create a new department",
                 "consumes": [
                     "application/json"
@@ -776,6 +875,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Update department",
                 "consumes": [
                     "application/json"
@@ -815,6 +919,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Delete department",
                 "produces": [
                     "application/json"
@@ -840,7 +949,38 @@ const docTemplate = `{
             }
         },
         "/api/v1/role/": {
+            "get": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
+                "description": "Get all roles",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role"
+                ],
+                "summary": "Get all roles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Role"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Create role",
                 "produces": [
                     "application/json"
@@ -872,6 +1012,11 @@ const docTemplate = `{
         },
         "/api/v1/role/{id}": {
             "get": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Get role by ID",
                 "produces": [
                     "application/json"
@@ -899,6 +1044,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Update role",
                 "produces": [
                     "application/json"
@@ -935,6 +1085,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "bearerToken": []
+                    }
+                ],
                 "description": "Delete role",
                 "produces": [
                     "application/json"
@@ -959,7 +1114,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/volunteer-request": {
+            "post": {
+                "description": "Create a new volunteer request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "request"
+                ],
+                "summary": "Create a new volunteer request",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestCreatingDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/volunteer/": {
+            "get": {
+                "description": "Get all volunteers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "volunteer"
+                ],
+                "summary": "Get all volunteers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.VolunteerDetails"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create volunteer",
                 "produces": [
@@ -990,40 +1197,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/volunteer/request": {
-            "post": {
-                "description": "Create a new volunteer request",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "volunteer"
-                ],
-                "summary": "Create a new volunteer request",
-                "parameters": [
-                    {
-                        "description": "Request body",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.VoluteerRequestCreatingDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/volunteer/{id}": {
             "get": {
                 "description": "Find volunteer by ID",
@@ -1047,7 +1220,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Volunteer"
+                            "$ref": "#/definitions/domain.VolunteerDetails"
                         }
                     }
                 }
@@ -1210,7 +1383,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Volunteer": {
+        "domain.VolunteerDetails": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1238,44 +1411,6 @@ const docTemplate = `{
             "properties": {
                 "notes": {
                     "type": "string"
-                }
-            }
-        },
-        "dto.ApplicantCreateDTO": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "surname"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.ApplicantRequestCreatingDTO": {
-            "type": "object",
-            "required": [
-                "status",
-                "type",
-                "user_id"
-            ],
-            "properties": {
-                "status": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1329,9 +1464,6 @@ const docTemplate = `{
                 "dob": {
                     "type": "string"
                 },
-                "email": {
-                    "type": "string"
-                },
                 "gender": {
                     "type": "string"
                 },
@@ -1342,9 +1474,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "resident_country_id": {
-                    "type": "integer"
-                },
-                "role_id": {
                     "type": "integer"
                 },
                 "surname": {
@@ -1551,6 +1680,36 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RequestCreatingDTO": {
+            "type": "object",
+            "required": [
+                "department_id",
+                "user_id"
+            ],
+            "properties": {
+                "country_id": {
+                    "type": "integer"
+                },
+                "department_id": {
+                    "type": "integer"
+                },
+                "dob": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "mobile": {
+                    "type": "string"
+                },
+                "resident_country_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.RequestResponse": {
             "type": "object",
             "properties": {
@@ -1685,25 +1844,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.VoluteerRequestCreatingDTO": {
-            "type": "object",
-            "required": [
-                "status",
-                "type",
-                "user_id"
-            ],
-            "properties": {
-                "status": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "integer"
                 }
             }

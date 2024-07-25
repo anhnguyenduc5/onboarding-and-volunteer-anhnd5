@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -13,19 +14,17 @@ func AuthMiddleware(secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Need to login as admin to perform this action"})
 			c.Abort()
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
-			return
+		var tokenString string
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+		} else {
+			tokenString = authHeader
 		}
-
-		tokenString := parts[1]
 		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -34,8 +33,21 @@ func AuthMiddleware(secretKey string) gin.HandlerFunc {
 		})
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			c.Set("userId", int(claims["userId"].(float64)))
-			c.Set("roleId", int(claims["roleId"].(float64)))
+			userId, userIdOk := claims["userId"].(float64)
+			roleId, roleIdOk := claims["roleId"].(float64)
+			if !roleIdOk {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "This user does not have role yet"})
+				c.Abort()
+				return
+			}
+			if !userIdOk {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+				c.Abort()
+				return
+			}
+
+			c.Set("userId", int(userId))
+			c.Set("roleId", int(roleId))
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			c.Abort()
@@ -44,4 +56,12 @@ func AuthMiddleware(secretKey string) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func checkAdminRole(c *gin.Context) error {
+	roleId, exists := c.Get("roleId")
+	if !exists || roleId.(int) != 1 {
+		return errors.New("forbidden: only admins can perform this action")
+	}
+	return nil
 }

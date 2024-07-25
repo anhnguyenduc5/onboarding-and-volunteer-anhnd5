@@ -18,7 +18,7 @@ func NewApplicantHandler(userUsecase usecase.ApplicantUsecaseInterface) *Applica
 	return &ApplicantHandler{ApplicantUseCaseH: userUsecase}
 }
 
-// CreateApplicant godoc
+/*// CreateApplicant godoc
 // @Summary Create applicant
 // @Description Create applicant
 // @Produce json
@@ -39,7 +39,7 @@ func (h *ApplicantHandler) CreateApplicant(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
-}
+}*/
 
 // UpdateApplicant godoc
 // @Summary Update applicant

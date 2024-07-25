@@ -59,7 +59,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  domain.Volunteer:
+  domain.VolunteerDetails:
     properties:
       createdAt:
         type: string
@@ -78,32 +78,6 @@ definitions:
     properties:
       notes:
         type: string
-    type: object
-  dto.ApplicantCreateDTO:
-    properties:
-      email:
-        type: string
-      name:
-        type: string
-      surname:
-        type: string
-    required:
-    - email
-    - name
-    - surname
-    type: object
-  dto.ApplicantRequestCreatingDTO:
-    properties:
-      status:
-        type: integer
-      type:
-        type: string
-      user_id:
-        type: integer
-    required:
-    - status
-    - type
-    - user_id
     type: object
   dto.ApplicantResponseDTO:
     properties:
@@ -138,8 +112,6 @@ definitions:
         type: integer
       dob:
         type: string
-      email:
-        type: string
       gender:
         type: string
       mobile:
@@ -147,8 +119,6 @@ definitions:
       name:
         type: string
       resident_country_id:
-        type: integer
-      role_id:
         type: integer
       surname:
         type: string
@@ -287,6 +257,26 @@ definitions:
       message:
         type: string
     type: object
+  dto.RequestCreatingDTO:
+    properties:
+      country_id:
+        type: integer
+      department_id:
+        type: integer
+      dob:
+        type: string
+      gender:
+        type: string
+      mobile:
+        type: string
+      resident_country_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - department_id
+    - user_id
+    type: object
   dto.RequestResponse:
     properties:
       create_at:
@@ -378,25 +368,33 @@ definitions:
       status:
         type: integer
     type: object
-  dto.VoluteerRequestCreatingDTO:
-    properties:
-      status:
-        type: integer
-      type:
-        type: string
-      user_id:
-        type: integer
-    required:
-    - status
-    - type
-    - user_id
-    type: object
 info:
   contact: {}
   description: This is a volunteer service API
   title: Onboarding and Volunteer Service API
   version: "1.0"
 paths:
+  /api/v1/admin/active-user/{id}:
+    put:
+      description: Active user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - bearerToken: []
+      summary: Active user
+      tags:
+      - admin
   /api/v1/admin/add-reject-notes/{id}:
     post:
       description: Add reject notes
@@ -443,6 +441,27 @@ paths:
       security:
       - bearerToken: []
       summary: Approve request
+      tags:
+      - admin
+  /api/v1/admin/deactive-user/{id}:
+    put:
+      description: Deactive user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - bearerToken: []
+      summary: Deactive user
       tags:
       - admin
   /api/v1/admin/delete-request/{id}:
@@ -626,12 +645,12 @@ paths:
     post:
       description: Create request
       parameters:
-      - description: Create Request Request
+      - description: Create Applicant Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ApplicantRequestCreatingDTO'
+          $ref: '#/definitions/dto.RequestCreatingDTO'
       produces:
       - application/json
       responses:
@@ -642,26 +661,6 @@ paths:
       summary: Create request
       tags:
       - request
-  /api/v1/applicant/:
-    post:
-      description: Create applicant
-      parameters:
-      - description: Create Applicant Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ApplicantCreateDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Applicant created successfully
-          schema:
-            type: string
-      summary: Create applicant
-      tags:
-      - applicant
   /api/v1/applicant/{id}:
     delete:
       description: Delete applicant
@@ -764,6 +763,20 @@ paths:
       tags:
       - authentication
   /api/v1/countries:
+    get:
+      description: Get all countries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Country'
+            type: array
+      summary: Get all countries
+      tags:
+      - country
     post:
       consumes:
       - application/json
@@ -782,6 +795,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/domain.Country'
+      security:
+      - bearerToken: []
       summary: Create a new country
       tags:
       - country
@@ -797,6 +812,8 @@ paths:
       responses:
         "204":
           description: No Content
+      security:
+      - bearerToken: []
       summary: Delete country
       tags:
       - country
@@ -841,10 +858,26 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Country'
+      security:
+      - bearerToken: []
       summary: Update country
       tags:
       - country
   /api/v1/departments:
+    get:
+      description: Get all departments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Department'
+            type: array
+      summary: Get all departments
+      tags:
+      - department
     post:
       consumes:
       - application/json
@@ -863,6 +896,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/domain.Department'
+      security:
+      - bearerToken: []
       summary: Create a new department
       tags:
       - department
@@ -880,6 +915,8 @@ paths:
       responses:
         "204":
           description: No Content
+      security:
+      - bearerToken: []
       summary: Delete department
       tags:
       - department
@@ -924,10 +961,28 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Department'
+      security:
+      - bearerToken: []
       summary: Update department
       tags:
       - department
   /api/v1/role/:
+    get:
+      description: Get all roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Role'
+            type: array
+      security:
+      - bearerToken: []
+      summary: Get all roles
+      tags:
+      - role
     post:
       description: Create role
       parameters:
@@ -944,6 +999,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/domain.Role'
+      security:
+      - bearerToken: []
       summary: Create role
       tags:
       - role
@@ -961,6 +1018,8 @@ paths:
       responses:
         "204":
           description: No Content
+      security:
+      - bearerToken: []
       summary: Delete role
       tags:
       - role
@@ -979,6 +1038,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Role'
+      security:
+      - bearerToken: []
       summary: Get role by ID
       tags:
       - role
@@ -1003,10 +1064,46 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/domain.Role'
+      security:
+      - bearerToken: []
       summary: Update role
       tags:
       - role
+  /api/v1/volunteer-request:
+    post:
+      consumes:
+      - application/json
+      description: Create a new volunteer request
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestCreatingDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Create a new volunteer request
+      tags:
+      - request
   /api/v1/volunteer/:
+    get:
+      description: Get all volunteers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.VolunteerDetails'
+      summary: Get all volunteers
+      tags:
+      - volunteer
     post:
       description: Create volunteer
       parameters:
@@ -1059,7 +1156,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Volunteer'
+            $ref: '#/definitions/domain.VolunteerDetails'
       summary: Find volunteer by ID
       tags:
       - volunteer
@@ -1085,28 +1182,6 @@ paths:
           schema:
             type: string
       summary: Update volunteer
-      tags:
-      - volunteer
-  /api/v1/volunteer/request:
-    post:
-      consumes:
-      - application/json
-      description: Create a new volunteer request
-      parameters:
-      - description: Request body
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.VoluteerRequestCreatingDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            type: string
-      summary: Create a new volunteer request
       tags:
       - volunteer
 securityDefinitions:

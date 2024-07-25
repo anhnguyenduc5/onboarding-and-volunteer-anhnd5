@@ -4,6 +4,7 @@ import (
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/domain"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/dto"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type AuthenticationSrore interface {
@@ -27,18 +28,20 @@ func (r *AuthenticationRepository) GetUserByEmail(email string, password string)
 	if user.Status == 0 {
 		return nil, "User is inactive"
 	}
-	if user.Password != password {
+	if strings.Trim(password, "") != "" && user.Password != password {
 		return nil, "Password is incorrect"
 	}
 	return &user, ""
 }
 
 func (r *AuthenticationRepository) RegisterUser(request *dto.RegisterUserRequest) (*dto.RegisterUserResponse, error) {
+	roleId := 3
 	user := domain.User{
 		Email:    request.Email,
 		Name:     request.Name,
 		Password: request.Password,
 		Status:   1,
+		RoleID:   &roleId,
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {

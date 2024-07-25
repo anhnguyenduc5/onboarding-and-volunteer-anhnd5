@@ -11,6 +11,7 @@ type CountryRepositoryInterface interface {
 	GetByID(id uint) (*domain.Country, error)
 	Update(country *domain.Country) error
 	Delete(id uint) error
+	GetAll() ([]domain.Country, error)
 }
 
 // CountryRepository handles the CRUD operations with the database.
@@ -26,6 +27,12 @@ func NewCountryRepository(db *gorm.DB) *CountryRepository {
 // Create inserts a new country record into the database.
 func (r *CountryRepository) Create(country *domain.Country) error {
 	return r.DB.Create(country).Error
+}
+
+func (r *CountryRepository) GetAll() ([]domain.Country, error) {
+	var countries []domain.Country
+	err := r.DB.Find(&countries).Error
+	return countries, err
 }
 
 // GetByID retrieves a country record by its ID from the database.

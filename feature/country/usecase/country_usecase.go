@@ -12,6 +12,7 @@ type CountryUsecaseInterface interface {
 	GetCountryByID(id uint) (*dto.CountryResponseDTO, error)
 	UpdateCountry(id uint, input dto.CountryUpdateDTO) error
 	DeleteCountry(id uint) error
+	GetAll() ([]domain.Country, error)
 }
 
 // CountryUsecase handles the business logic for countries.
@@ -32,6 +33,14 @@ func (u *CountryUsecase) CreateCountry(input dto.CountryCreateDTO) error {
 	}
 	err := u.CountryRepo.Create(country)
 	return err
+}
+
+func (u *CountryUsecase) GetAll() ([]domain.Country, error) {
+	countries, err := u.CountryRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return countries, nil
 }
 
 // GetCountryByID retrieves a country by its ID.

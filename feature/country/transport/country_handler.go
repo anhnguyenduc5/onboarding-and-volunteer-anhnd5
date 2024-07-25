@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -25,11 +26,16 @@ func NewCountryHandler(usecase usecase.CountryUsecaseInterface) *CountryHandler 
 // @Description Create a new country
 // @Accept json
 // @Produce json
+// @Security bearerToken
 // @Tags country
 // @Param country body dto.CountryCreateDTO true "Country data"
 // @Success 201 {object} domain.Country
 // @Router /api/v1/countries [post]
 func (h *CountryHandler) CreateCountry(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	var input dto.CountryCreateDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -43,6 +49,24 @@ func (h *CountryHandler) CreateCountry(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Country created successfully"})
+}
+
+// GetAllCountries handles the HTTP GET request to retrieve all countries.
+// GetAllCountries godoc
+// @Summary Get all countries
+// @Description Get all countries
+// @Produce json
+// @Tags country
+// @Success 200 {array} domain.Country
+// @Router /api/v1/countries [get]
+func (h *CountryHandler) GetAllCountries(c *gin.Context) {
+	countries, err := h.usecase.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, countries)
 }
 
 // GetCountryByID handles the HTTP GET request to retrieve a country by its ID.
@@ -76,12 +100,17 @@ func (h *CountryHandler) GetCountryByID(c *gin.Context) {
 // @Description Update country
 // @Accept json
 // @Produce json
+// @Security bearerToken
 // @Tags country
 // @Param id path int true "Country ID"
 // @Param country body dto.CountryUpdateDTO true "Country data"
 // @Success 200 {object} domain.Country
 // @Router /api/v1/countries/{id} [put]
 func (h *CountryHandler) UpdateCountry(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid country ID"})
@@ -107,10 +136,15 @@ func (h *CountryHandler) UpdateCountry(c *gin.Context) {
 // @Summary Delete country
 // @Description Delete country
 // @Tags country
+// @Security bearerToken
 // @Param id path int true "Country ID"
 // @Success 204
 // @Router /api/v1/countries/{id} [delete]
 func (h *CountryHandler) DeleteCountry(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid country ID"})
@@ -124,4 +158,12 @@ func (h *CountryHandler) DeleteCountry(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func (h *CountryHandler) checkAdminRole(c *gin.Context) error {
+	roleId, exists := c.Get("roleId")
+	if !exists || roleId.(int) != 1 {
+		return errors.New("forbidden: only admins can perform this action")
+	}
+	return nil
 }

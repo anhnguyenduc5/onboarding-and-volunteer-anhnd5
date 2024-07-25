@@ -16,17 +16,17 @@ func NewVolunteerRequestHandler(volRequestUsecase usecase.VolunteerRequestUsecas
 	return &VolunteerRequestHandler{VolRequestUsecase: volRequestUsecase}
 }
 
-// CreateRequest godoc
+// CreateVolunteerRequest godoc
 // @Summary Create a new volunteer request
 // @Description Create a new volunteer request
 // @Produce json
-// @Tags volunteer
+// @Tags request
 // @Accept json
-// @Param request body dto.VoluteerRequestCreatingDTO true "Request body"
+// @Param request body dto.RequestCreatingDTO true "Request body"
 // @Success 201 {object} string
-// @Router /api/v1/volunteer/request [post]
+// @Router /api/v1/volunteer-request [post]
 func (h *VolunteerRequestHandler) CreateVolunteerRequest(c *gin.Context) {
-	var request dto.VoluteerRequestCreatingDTO
+	var request dto.RequestCreatingDTO
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

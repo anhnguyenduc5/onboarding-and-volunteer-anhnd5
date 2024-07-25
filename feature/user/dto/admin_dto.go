@@ -16,11 +16,11 @@ type PendingRequest struct {
 
 type RequestResponse struct {
 	ID          int       `json:"id"`
-	UserID      uint      `json:"user_id"`
+	UserID      int       `json:"user_id"`
 	Type        string    `json:"type"`
 	Status      int       `json:"status"`
 	RejectNotes string    `json:"reject_notes"`
-	VerifierID  int       `json:"verifier_id"`
+	VerifierID  *int      `json:"verifier_id"`
 	CreateAt    time.Time `json:"create_at"`
 	UpdateAt    time.Time `json:"update_at"`
 }

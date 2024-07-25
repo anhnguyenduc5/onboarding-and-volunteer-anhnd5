@@ -27,6 +27,10 @@ func (u *DepartmentUsecase) CreateDepartment(input dto.DepartmentCreateDTO) (*do
 	return department, err
 }
 
+func (u *DepartmentUsecase) GetAllDepartments() ([]domain.Department, error) {
+	return u.repo.GetAll()
+}
+
 // GetDepartmentByID retrieves a department by its ID.
 func (u *DepartmentUsecase) GetDepartmentByID(id uint) (*domain.Department, error) {
 	return u.repo.GetByID(id)

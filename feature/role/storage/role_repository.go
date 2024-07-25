@@ -20,6 +20,12 @@ func (r *RoleRepository) Create(role *domain.Role) error {
 	return r.DB.Create(role).Error
 }
 
+func (r *RoleRepository) GetAll() ([]domain.Role, error) {
+	var roles []domain.Role
+	err := r.DB.Find(&roles).Error
+	return roles, err
+}
+
 // GetByID retrieves a role record by its ID from the database.
 func (r *RoleRepository) GetByID(id uint) (*domain.Role, error) {
 	var role domain.Role

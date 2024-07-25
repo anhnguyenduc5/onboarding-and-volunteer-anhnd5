@@ -8,36 +8,45 @@ import (
 
 // VolunteerRepositoryInterface defines the methods that a VolunteerRepository should implement
 type VolunteerRepositoryInterface interface {
-	CreateVolunteer(volunteer *domain.Volunteer) error
-	UpdateVolunteer(volunteer *domain.Volunteer) error
+	CreateVolunteer(volunteer *domain.VolunteerDetails) error
+	UpdateVolunteer(volunteer *domain.VolunteerDetails) error
 	DeleteVolunteer(id int) error
-	FindVolunteerByID(id int) (*domain.Volunteer, error)
+	FindVolunteerByID(id int) (*domain.VolunteerDetails, error)
+	GetAllVolunteers() ([]*domain.VolunteerDetails, error)
 }
 
 type VolunteerRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewVolunteerRepository(db *gorm.DB) *VolunteerRepository {
-	return &VolunteerRepository{DB: db}
+	return &VolunteerRepository{db: db}
 }
 
-func (r *VolunteerRepository) CreateVolunteer(volunteer *domain.Volunteer) error {
-	return r.DB.Create(volunteer).Error
+func (r *VolunteerRepository) CreateVolunteer(volunteer *domain.VolunteerDetails) error {
+	return r.db.Create(volunteer).Error
 }
 
-func (r *VolunteerRepository) UpdateVolunteer(volunteer *domain.Volunteer) error {
-	return r.DB.Save(volunteer).Error
+func (r *VolunteerRepository) UpdateVolunteer(volunteer *domain.VolunteerDetails) error {
+	return r.db.Save(volunteer).Error
 }
 
 func (r *VolunteerRepository) DeleteVolunteer(id int) error {
-	return r.DB.Delete(&domain.Volunteer{}, id).Error
+	return r.db.Delete(&domain.VolunteerDetails{}, id).Error
 }
 
-func (r *VolunteerRepository) FindVolunteerByID(id int) (*domain.Volunteer, error) {
-	var volunteer *domain.Volunteer
-	if err := r.DB.First(&volunteer, id).Error; err != nil {
+func (r *VolunteerRepository) FindVolunteerByID(id int) (*domain.VolunteerDetails, error) {
+	var volunteer *domain.VolunteerDetails
+	if err := r.db.First(&volunteer, id).Error; err != nil {
 		return nil, err
 	}
 	return volunteer, nil
+}
+
+func (r *VolunteerRepository) GetAllVolunteers() ([]*domain.VolunteerDetails, error) {
+	var volunteers []*domain.VolunteerDetails
+	if err := r.db.Find(&volunteers).Error; err != nil {
+		return nil, err
+	}
+	return volunteers, nil
 }

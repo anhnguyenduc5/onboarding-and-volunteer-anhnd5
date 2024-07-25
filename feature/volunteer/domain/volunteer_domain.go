@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Volunteer struct {
+type VolunteerDetails struct {
 	ID           int       `gorm:"primaryKey"`
 	UserID       int       `gorm:"unique;notnull"`
 	DepartmentID int       `gorm:"notnull"`

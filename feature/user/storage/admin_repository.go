@@ -15,6 +15,8 @@ type AdminRepositoryInterface interface {
 	RejectRequest(id int, verifier_id int) string
 	AddRejectNotes(id int, notes string) string
 	DeleteRequest(id int) string
+	ActiveUser(id int) string
+	DeactiveUser(id int) string
 }
 
 type AdminRepository struct {
@@ -118,7 +120,14 @@ func (r *AdminRepository) ApproveRequest(id int, verifier_id int) string {
 	return "Invalid request type"
 }
 func (r *AdminRepository) RejectRequest(id int, verifier_id int) string {
-	result := r.db.Model(&domain.Request{}).Where("id = ?", id).Update("status", 2).Update("verifier_id", verifier_id)
+	request := r.getRequestByRequestID(id)
+	if request == nil {
+		return "Request not found"
+	}
+	if request.Status != 0 {
+		return "Request already processed"
+	}
+	result := r.db.Model(&request).Where("id = ?", id).Update("status", 2).Update("verifier_id", verifier_id)
 	if result.Error != nil {
 		return result.Error.Error()
 	}
@@ -139,19 +148,58 @@ func (r *AdminRepository) DeleteRequest(id int) string {
 	return "Delete request success"
 }
 
+func (r *AdminRepository) ActiveUser(id int) string {
+	status := r.getUserStatus(id)
+	if status == -1 {
+		return "User not found"
+	}
+	if status == 1 {
+		return "User already active"
+	}
+	result := r.db.Model(&domain.User{}).Where("id = ?", id).Update("status", 1)
+	if result.Error != nil {
+		return result.Error.Error()
+	}
+	return "Active user success"
+}
+
+func (r *AdminRepository) DeactiveUser(id int) string {
+	status := r.getUserStatus(id)
+	if status == -1 {
+		return "User not found"
+	}
+	if status == 0 {
+		return "User already deactive"
+	}
+	result := r.db.Model(&domain.User{}).Where("id = ?", id).Update("status", 0)
+	if result.Error != nil {
+		return result.Error.Error()
+	}
+	return "Deactive user success"
+}
+
 func (r *AdminRepository) getRequestByRequestID(requestID int) *domain.Request {
 	var request *domain.Request
 	r.db.First(&request, requestID)
 	return request
 }
 
-func (r *AdminRepository) getDeptIdFromUser(id uint) *int {
+func (r *AdminRepository) getDeptIdFromUser(id int) *int {
 	var user domain.User
 	r.db.First(&user, id)
 	return user.DepartmentID
 }
 
-func updateRoleId(result *gorm.DB, r *AdminRepository, userID uint, roleId int) (string, bool) {
+func (r *AdminRepository) getUserStatus(id int) int {
+	var user domain.User
+	rs := r.db.First(&user, id)
+	if rs.Error != nil {
+		return -1
+	}
+	return user.Status
+}
+
+func updateRoleId(result *gorm.DB, r *AdminRepository, userID int, roleId int) (string, bool) {
 	result = r.db.Model(&domain.User{}).Where("id = ?", userID).Update("role_id", roleId)
 	if result.Error != nil {
 		return result.Error.Error(), true

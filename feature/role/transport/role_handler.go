@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -25,10 +26,15 @@ func NewRoleHandler(usecase *usecase.RoleUsecase) *RoleHandler {
 // @Description Create role
 // @Produce json
 // @Tags role
+// @Security bearerToken
 // @Param request body dto.RoleCreateDTO true "Create Role Request"
 // @Success 201 {object} domain.Role
 // @Router /api/v1/role/ [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	var input dto.RoleCreateDTO
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -44,16 +50,44 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, role)
 }
 
+// GetAllRoles handles the HTTP GET request to retrieve all roles.
+// GetAllRoles godoc
+// @Summary Get all roles
+// @Description Get all roles
+// @Produce json
+// @Tags role
+// @Security bearerToken
+// @Success 200 {array} domain.Role
+// @Router /api/v1/role/ [get]
+func (h *RoleHandler) GetAllRoles(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	roles, err := h.usecase.GetAllRoles()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, roles)
+}
+
 // GetRoleByID handles the HTTP GET request to retrieve a role by its ID.
 // GetRoleByID godoc
 // @Summary Get role by ID
 // @Description Get role by ID
 // @Produce json
 // @Tags role
+// @Security bearerToken
 // @Param id path int true "Role ID"
 // @Success 200 {object} domain.Role
 // @Router /api/v1/role/{id} [get]
 func (h *RoleHandler) GetRoleByID(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
@@ -75,11 +109,16 @@ func (h *RoleHandler) GetRoleByID(c *gin.Context) {
 // @Description Update role
 // @Produce json
 // @Tags role
+// @Security bearerToken
 // @Param id path int true "Role ID"
 // @Param request body dto.RoleUpdateDTO true "Update Role Request"
 // @Success 200 {object} domain.Role
 // @Router /api/v1/role/{id} [put]
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
@@ -107,10 +146,15 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 // @Description Delete role
 // @Produce json
 // @Tags role
+// @Security bearerToken
 // @Param id path int true "Role ID"
 // @Success 204
 // @Router /api/v1/role/{id} [delete]
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
+	if err := h.checkAdminRole(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
@@ -124,4 +168,12 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func (h *RoleHandler) checkAdminRole(c *gin.Context) error {
+	roleId, exists := c.Get("roleId")
+	if !exists || roleId.(int) != 1 {
+		return errors.New("forbidden: only admins can perform this action")
+	}
+	return nil
 }
