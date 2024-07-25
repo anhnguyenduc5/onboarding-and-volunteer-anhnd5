@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/cesc1802/onboarding-and-volunteer-service/cmd"
 	_ "github.com/cesc1802/onboarding-and-volunteer-service/docs"
+	"github.com/cesc1802/onboarding-and-volunteer-service/server"
 )
 
 // @title Onboarding and Volunteer Service API
@@ -12,5 +12,5 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	cmd.Execute()
+	server.RegisterServer()
 }

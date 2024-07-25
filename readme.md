@@ -14,14 +14,16 @@ This repository contains the codebase for the Onboarding and Volunteer Service a
   - [User Endpoints: "/applicant"](#user-endpoints-applicant)
   - [Application Request Endpoints:"/applicant-request"](#application-request-endpointsapplicant-request)
   - [User Identity Endpoints: "/applicant-identity"](#user-identity-endpoints-applicant-identity)
+  - [Volunteer Endpoints: "/volunteer"](#volunteer-endpoints-volunteer)
+  - [Volunteer Request Endpoints: "/volunteer-request"](#volunteer-request-endpoints-volunteer-request)
+  - [Department Endpoints: "/department"](#department-endpoints-department)
+  - [Country Endpoints: "/country"](#country-endpoints-country)
+  - [Role Endpoints: "/role"](#role-endpoints-role)
 - [Contributing](#contributing)
-- [License](#license)
   
 ### Project Structure
-The project follows a modular structure with clearly defined folders:
-├───cmd  
-│   ├───migration  
-│   └───server  
+The project follows a modular structure with clearly defined folders:  
+├───config  
 ├───deployment  
 ├───docs  
 ├───feature  
@@ -33,7 +35,9 @@ The project follows a modular structure with clearly defined folders:
 │   ├───user  
 │   ├───user_identity  
 │   └───volunteer  
-└───migration  
+├───migration  
+└───server
+
 
 ### Installation
 To get started with the Onboarding and Volunteer Service application, follow these steps:
@@ -57,13 +61,11 @@ DB.USER: Database user
 DB.PASS: Database password  
 DB.NAME: Database name
 
-Database Migration  
-Run the database migrations to set up the required tables:  
-go run cmd/migration/main.go
+WEB.PORT: Port for the web server
 
 ### Usage
 To start the application, run:  
-go run cmd/main.go
+go run cmd/main.go server
 
 The server will start on the port specified in the .env file.
 
@@ -129,28 +131,28 @@ As an admin, I want to search for volunteers by role so that I can find voluntee
 POST "/login": Login to the system
 POST "/register": Register a new user
 
-#### Admin Endpoints: "/admin" 
+### Admin Endpoints: "/admin" 
 Note: before you use the admin api, you must log-in as admin first to get authorize token
 GET "/list-request": Get the request list  
 GET "/request/:id" : Get a specific request  
 GET "/list-pending-request": Get list requests are pending
-GET "/pending-request/:id": Get specific request is pending
+GET "/pending-request/:id": Get specific request is pending  
 POST "/approve-request/:id": Approve a request, change status of request  
 POST "/reject-request/:id": Reject a request, change status of request  
 POST "/add-reject-notes/:id": Add reject notes to a request  
 DELETE "/delete-request/:id": Delete a request  
-PUT "/active-user/:id": Active a user
+PUT "/active-user/:id": Active a user  
 PUT "/deactive-user/:id": Deactive a user
 
-#### Applicant Endpoints: "/applicant"  
+### Applicant Endpoints: "/applicant"  
 PUT "/:id" : Update an existing user from register form  
 DELETE "/:id" : Delete user with id  
 GET "/:id" : Get information about user with id
 
-#### Application Request Endpoints:"/applicant-request"  
+### Application Request Endpoints:"/applicant-request"  
 POST "/" : Create a record request
 
-#### User Identity Endpoints: "/applicant-identity"  
+### User Identity Endpoints: "/applicant-identity"  
 POST "/" : Create a user identity record  
 GET "/:id": Find a user identity  
 PUT "/:id": Update a user identity record    
@@ -174,20 +176,25 @@ GET "/:id": Get a specific department
 GET "/": Get all departments
 
 ### Country Endpoints: "/country"
-Note: master data, only admin can access
-POST "/": Create a country
-PUT "/:id": Update a country
-DELETE "/:id": Delete a country
-GET "/:id": Get a specific country
+Note: master data, only admin can access  
+POST "/": Create a country  
+PUT "/:id": Update a country  
+DELETE "/:id": Delete a country  
+GET "/:id": Get a specific country  
 GET "/": Get all countries
 
 ### Role Endpoints: "/role"
-Note: master data, only admin can access
-POST "/": Create a role
-PUT "/:id": Update a role
-DELETE "/:id": Delete a role
-GET "/:id": Get a specific role
-GET "/": Get all roles
+Note: master data, only admin can access  
+POST "/": Create a role  
+PUT "/:id": Update a role  
+DELETE "/:id": Delete a role  
+GET "/:id": Get a specific role  
+GET "/": Get all roles  
+
+### Swagger Document
+For short, you could view the API document by Swagger and testing them.  
+Access the URL: "/docs/index.html". You can view and test the API we wrote there.   
+In order to use ADMIN's APIs you need to login as an admin and get authorize token. After that fill the responded authorize token in the authorize button with value: `"authorize token"`
 
 ### Contributing  
 
@@ -198,7 +205,4 @@ Create a new branch (git checkout -b feature/your-feature).
 Commit your changes (git commit -am 'Add new feature').  
 Push to the branch (git push origin feature/your-feature).  
 Create a new Pull Request.  
-
-### License  
-This project is licensed under the MIT License. See the LICENSE file for details.  
 

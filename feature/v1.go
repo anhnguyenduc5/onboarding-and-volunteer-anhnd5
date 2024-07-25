@@ -1,6 +1,7 @@
 package feature
 
 import (
+	"gorm.io/gorm"
 	"net/http"
 
 	_ "github.com/cesc1802/onboarding-and-volunteer-service/docs"
@@ -31,15 +32,14 @@ import (
 	volunteerTransport "github.com/cesc1802/onboarding-and-volunteer-service/feature/volunteer/transport"
 	volunteerUsecase "github.com/cesc1802/onboarding-and-volunteer-service/feature/volunteer/usecase"
 
-	"github.com/cesc1802/share-module/system"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 // @host localhost:8080
 // @BasePath /api/v1
-func RegisterHandlerV1(mono system.Service) {
-	router := mono.Router()
+func RegisterHandlerV1(db *gorm.DB) *gin.Engine {
+	router := gin.Default()
 	secretKey := authStorage.GetSecretKey()
 	router.Use(cors.Default())
 	// add swagger
@@ -51,16 +51,16 @@ func RegisterHandlerV1(mono system.Service) {
 	})
 	v1 := router.Group("/api/v1")
 	// Initialize repository
-	authRepo := authStorage.NewAuthenticationRepository(mono.DB())
-	userRepo := userStorage.NewAdminRepository(mono.DB())
-	applicantRepo := userStorage.NewApplicantRepository(mono.DB())
-	applicantRequestRepo := userStorage.NewApplicantRequestRepository(mono.DB())
-	applicantIdentityRepo := appliIdentityStorage.NewUserIdentityRepository(mono.DB())
-	volunteerRepo := volunteerStorage.NewVolunteerRepository(mono.DB())
-	volunteerRequestRepo := userStorage.NewVolunteerRequestRepository(mono.DB())
-	roleRepo := roleStorage.NewRoleRepository(mono.DB())
-	deptRepo := deptStorage.NewDepartmentRepository(mono.DB())
-	countryRepo := countryStorage.NewCountryRepository(mono.DB())
+	authRepo := authStorage.NewAuthenticationRepository(db)
+	userRepo := userStorage.NewAdminRepository(db)
+	applicantRepo := userStorage.NewApplicantRepository(db)
+	applicantRequestRepo := userStorage.NewApplicantRequestRepository(db)
+	applicantIdentityRepo := appliIdentityStorage.NewUserIdentityRepository(db)
+	volunteerRepo := volunteerStorage.NewVolunteerRepository(db)
+	volunteerRequestRepo := userStorage.NewVolunteerRequestRepository(db)
+	roleRepo := roleStorage.NewRoleRepository(db)
+	deptRepo := deptStorage.NewDepartmentRepository(db)
+	countryRepo := countryStorage.NewCountryRepository(db)
 	// Initialize usecase
 	authUseCase := authUsecase.NewUserUsecase(authRepo, secretKey)
 	userUseCase := userUsecase.NewAdminUsecase(userRepo)
@@ -164,4 +164,6 @@ func RegisterHandlerV1(mono system.Service) {
 		country.GET("/:id", countryHandler.GetCountryByID)
 		country.GET("/", countryHandler.GetAllCountries)
 	}
+
+	return router
 }
