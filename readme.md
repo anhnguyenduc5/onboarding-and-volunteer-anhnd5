@@ -77,7 +77,7 @@ II. Applicant
 
 As an applicant, I want to log in the system so that I can register as a volunteer. (bỏ qua)  
 As an applicant, I would like to register to be a volunteer so that I can participate in volunteer activities.  
-As an applicant, I want to change some fields in the application form so that my information is up to date.  
+As an applicant, I want to change some fields in the application form so that my information is up-to-date.  
 As an applicant, I would like to cancel my registration so that I can withdraw my application.  
 As an applicant, I want to view my registration status so that I can track my application progress.  
 As an applicant, I would like to activate my email after getting approved so that I can start receiving official communications.  
@@ -125,20 +125,27 @@ As an admin, I want to search for volunteers by role so that I can find voluntee
 
 ### API Endpoints "/api/v1"
 
+### Authentication Endpoints: "/auth"
+POST "/login": Login to the system
+POST "/register": Register a new user
+
 #### Admin Endpoints: "/admin" 
-Before you get to use the admin api, you must log-in first to get authorize token
+Note: before you use the admin api, you must log-in as admin first to get authorize token
 GET "/list-request": Get the request list  
 GET "/request/:id" : Get a specific request  
+GET "/list-pending-request": Get list requests are pending
+GET "/pending-request/:id": Get specific request is pending
 POST "/approve-request/:id": Approve a request, change status of request  
 POST "/reject-request/:id": Reject a request, change status of request  
 POST "/add-reject-notes/:id": Add reject notes to a request  
 DELETE "/delete-request/:id": Delete a request  
+PUT "/active-user/:id": Active a user
+PUT "/deactive-user/:id": Deactive a user
 
-#### User Endpoints: "/applicant"  
-POST "/:" Create a new user  
+#### Applicant Endpoints: "/applicant"  
 PUT "/:id" : Update an existing user from register form  
-DELETE "/:id" : Delete an user with id  
-GET "/:id" : Get information about an user with id
+DELETE "/:id" : Delete user with id  
+GET "/:id" : Get information about user with id
 
 #### Application Request Endpoints:"/applicant-request"  
 POST "/" : Create a record request
@@ -147,6 +154,40 @@ POST "/" : Create a record request
 POST "/" : Create a user identity record  
 GET "/:id": Find a user identity  
 PUT "/:id": Update a user identity record    
+
+### Volunteer Endpoints: "/volunteer"
+POST "/" : Create volunteer
+PUT "/:id": Update volunteer details
+DELETE "/:id": Delete a volunteer
+GET "/:id": Get a specific volunteer
+GET "/": Get all volunteers
+
+### Volunteer Request Endpoints: "/volunteer-request"
+POST "/": Create a volunteer request
+
+### Department Endpoints: "/department"
+Note: master data, only admin can access
+POST "/": Create a department
+PUT "/:id": Update a department
+DELETE "/:id": Delete a department
+GET "/:id": Get a specific department
+GET "/": Get all departments
+
+### Country Endpoints: "/country"
+Note: master data, only admin can access
+POST "/": Create a country
+PUT "/:id": Update a country
+DELETE "/:id": Delete a country
+GET "/:id": Get a specific country
+GET "/": Get all countries
+
+### Role Endpoints: "/role"
+Note: master data, only admin can access
+POST "/": Create a role
+PUT "/:id": Update a role
+DELETE "/:id": Delete a role
+GET "/:id": Get a specific role
+GET "/": Get all roles
 
 ### Contributing  
 
