@@ -88,8 +88,8 @@ func (r *AdminRepository) ApproveRequest(id int, verifier_id int) string {
 		if result.Error != nil {
 			return result.Error.Error()
 		}
-		// change user role to 1 (applicant)
-		s, done := updateRoleId(result, r, userID, 1)
+		// change user role to 3 (volunteer)
+		s, done := updateRoleId(result, r, userID, 3)
 		if done {
 			return s
 		}
@@ -99,8 +99,8 @@ func (r *AdminRepository) ApproveRequest(id int, verifier_id int) string {
 		if result.Error != nil {
 			return result.Error.Error()
 		}
-		// change user role to 2 (volunteer)
-		s, done := updateRoleId(result, r, userID, 2)
+		// change verification_status to 1
+		s, done := updateVerificationStatus(result, r, userID)
 		if done {
 			return s
 		}
@@ -201,6 +201,14 @@ func (r *AdminRepository) getUserStatus(id int) int {
 
 func updateRoleId(result *gorm.DB, r *AdminRepository, userID int, roleId int) (string, bool) {
 	result = r.db.Model(&domain.User{}).Where("id = ?", userID).Update("role_id", roleId)
+	if result.Error != nil {
+		return result.Error.Error(), true
+	}
+	return "", false
+}
+
+func updateVerificationStatus(result *gorm.DB, r *AdminRepository, userID int) (string, bool) {
+	result = r.db.Model(&domain.User{}).Where("id = ?", userID).Update("verification_status", 1)
 	if result.Error != nil {
 		return result.Error.Error(), true
 	}

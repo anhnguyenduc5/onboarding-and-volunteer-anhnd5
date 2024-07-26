@@ -40,7 +40,7 @@ func (r *AuthenticationRepository) RegisterUser(request *dto.RegisterUserRequest
 		return nil, err
 	}
 
-	roleId := 3
+	roleId := 2
 	user := domain.User{
 		Email:    request.Email,
 		Name:     request.Name,
