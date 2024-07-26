@@ -20,39 +20,13 @@ func NewVolunteerRequestUsecase(volRequestRepo storage.VolunteerRequestRepositor
 }
 
 func (u *VolunteerRequestUsecase) CreateVolunteerRequest(request dto.RequestCreatingDTO) error {
-	input := dto.ValidateInputDTO{
-		Gender: request.Gender,
-		Mobile: request.Mobile,
-	}
-	err := ValidateInput(input)
-	if err != nil {
-		return err
-	}
 	reqRequest := &domain.Request{
 		UserID:     request.UserID,
 		Type:       "verification",
 		Status:     0,
 		VerifierID: nil,
 	}
-	parsedTime, err := StringToTimePtr(request.DOB)
-	if err != nil {
-		return errors.New("invalid date of birth")
-	}
-	if !IsOlderThan15Years(parsedTime) {
-		return errors.New("applicant must be older than 15 years")
-	}
-	roleID := 2
-	reqUser := &domain.User{
-		ID:                request.UserID,
-		DepartmentID:      request.DepartmentID,
-		Gender:            request.Gender,
-		Dob:               parsedTime,
-		Mobile:            request.Mobile,
-		CountryID:         request.CountryID,
-		ResidentCountryID: request.ResidentCountryID,
-		RoleID:            &roleID,
-	}
-	return u.VolRequestRepo.CreateVolunteerRequest(reqRequest, reqUser)
+	return u.VolRequestRepo.CreateVolunteerRequest(reqRequest)
 }
 
 func ValidateInput(request dto.ValidateInputDTO) error {

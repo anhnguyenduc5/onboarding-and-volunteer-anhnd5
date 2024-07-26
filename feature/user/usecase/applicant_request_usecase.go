@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/domain"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/dto"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/user/storage"
@@ -21,39 +20,13 @@ func NewApplicantRequestUsecase(requestRepo storage.ApplicantRequestRepositoryIn
 }
 
 func (u *ApplicantRequestUsecase) CreateApplicantRequest(request dto.RequestCreatingDTO) error {
-	input := dto.ValidateInputDTO{
-		Gender: request.Gender,
-		Mobile: request.Mobile,
-	}
-	err := ValidateInput(input)
-	if err != nil {
-		return err
-	}
 	reqRequest := &domain.Request{
 		UserID:     request.UserID,
 		Type:       "registration",
 		Status:     0,
 		VerifierID: nil,
 	}
-	parsedTime, err := StringToTimePtr(request.DOB)
-	if err != nil {
-		return errors.New("invalid date of birth")
-	}
-	if !IsOlderThan15Years(parsedTime) {
-		return errors.New("applicant must be older than 15 years")
-	}
-	roleID := 1
-	reqUser := &domain.User{
-		ID:                request.UserID,
-		DepartmentID:      request.DepartmentID,
-		Gender:            request.Gender,
-		Dob:               parsedTime,
-		Mobile:            request.Mobile,
-		CountryID:         request.CountryID,
-		ResidentCountryID: request.ResidentCountryID,
-		RoleID:            &roleID,
-	}
-	return u.RequestRepo.CreateApplicantRequest(reqRequest, reqUser)
+	return u.RequestRepo.CreateApplicantRequest(reqRequest)
 }
 
 // StringToTimePtr Convert string to *time.Time

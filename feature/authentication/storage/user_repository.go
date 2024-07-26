@@ -3,8 +3,8 @@ package storage
 import (
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/domain"
 	"github.com/cesc1802/onboarding-and-volunteer-service/feature/authentication/dto"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type AuthenticationSrore interface {
@@ -28,18 +28,23 @@ func (r *AuthenticationRepository) GetUserByEmail(email string, password string)
 	if user.Status == 0 {
 		return nil, "User is inactive"
 	}
-	if strings.Trim(password, "") != "" && user.Password != password {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, "Password is incorrect"
 	}
 	return &user, ""
 }
 
 func (r *AuthenticationRepository) RegisterUser(request *dto.RegisterUserRequest) (*dto.RegisterUserResponse, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
 	roleId := 3
 	user := domain.User{
 		Email:    request.Email,
 		Name:     request.Name,
-		Password: request.Password,
+		Password: string(hashedPassword),
 		Status:   1,
 		RoleID:   &roleId,
 	}

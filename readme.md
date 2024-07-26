@@ -77,7 +77,7 @@ As a guest, I want to join the app  so that I can start the registration process
 II. Applicant
 
 
-As an applicant, I want to log in the system so that I can register as a volunteer. (bỏ qua)  
+As an applicant, I want to log in the system so that I can register as a volunteer. 
 As an applicant, I would like to register to be a volunteer so that I can participate in volunteer activities.  
 As an applicant, I want to change some fields in the application form so that my information is up-to-date.  
 As an applicant, I would like to cancel my registration so that I can withdraw my application.  
@@ -99,7 +99,7 @@ As a volunteer, I would like to fix errors according to rejected notes so that I
 
 IV. Admin  
 	
-As an admin, I would like to log in the system so that I can access the admin features. (bỏ qua)  
+As an admin, I would like to log in the system so that I can access the admin features.   
 As an admin, I want to see the admin main menu so that I can have an overview of all the features.  
 As an admin, I want to redirect to other features from the admin main menu so that I can manage the system effectively.  
 As an admin, I would like to search for features in the main menu so that I can quickly access the functionality I need.  

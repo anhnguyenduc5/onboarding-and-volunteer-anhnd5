@@ -1682,29 +1682,7 @@ const docTemplate = `{
         },
         "dto.RequestCreatingDTO": {
             "type": "object",
-            "required": [
-                "department_id",
-                "user_id"
-            ],
             "properties": {
-                "country_id": {
-                    "type": "integer"
-                },
-                "department_id": {
-                    "type": "integer"
-                },
-                "dob": {
-                    "type": "string"
-                },
-                "gender": {
-                    "type": "string"
-                },
-                "mobile": {
-                    "type": "string"
-                },
-                "resident_country_id": {
-                    "type": "integer"
-                },
                 "user_id": {
                     "type": "integer"
                 }

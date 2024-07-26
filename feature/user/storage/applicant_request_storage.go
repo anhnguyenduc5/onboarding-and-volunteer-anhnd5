@@ -8,7 +8,7 @@ import (
 )
 
 type ApplicantRequestRepositoryInterface interface {
-	CreateApplicantRequest(reqRequest *domain.Request, reqUser *domain.User) error
+	CreateApplicantRequest(reqRequest *domain.Request) error
 }
 
 type ApplicantRequestRepository struct {
@@ -19,31 +19,21 @@ func NewApplicantRequestRepository(db *gorm.DB) *ApplicantRequestRepository {
 	return &ApplicantRequestRepository{db: db}
 }
 
-func (r *ApplicantRequestRepository) CreateApplicantRequest(reqRequest *domain.Request, reqUser *domain.User) error {
+func (r *ApplicantRequestRepository) CreateApplicantRequest(reqRequest *domain.Request) error {
+	// find user
+	var user domain.User
+	r.db.First(&user, reqRequest.UserID)
+	if user.ID == 0 {
+		return errors.New("user not exist")
+	}
 	// find request
 	var existingRequests []domain.Request
-	query := r.db.Where("user_id = ?", reqUser.ID).Find(&existingRequests)
+	query := r.db.Where("user_id = ?", reqRequest.UserID).Where("status = ?", 0).Find(&existingRequests)
 	if query.Error != nil {
 		return query.Error
 	}
 	if query.RowsAffected > 0 {
-		return errors.New("this user already has a request")
-	}
-	//find user
-	if err := r.db.First(&domain.User{}, reqUser.ID).Error; err != nil {
-		return errors.New("user not found")
-	}
-	// update user
-	result := r.db.Model(&domain.User{}).Where("id = ?", reqUser.ID).Updates(map[string]interface{}{
-		"department_id":       reqUser.DepartmentID,
-		"gender":              reqUser.Gender,
-		"dob":                 reqUser.Dob,
-		"mobile":              reqUser.Mobile,
-		"country_id":          reqUser.CountryID,
-		"resident_country_id": reqUser.ResidentCountryID,
-	})
-	if result.Error != nil {
-		return result.Error
+		return errors.New("this user already has a pending request")
 	}
 	return r.db.Create(reqRequest).Error
 }
