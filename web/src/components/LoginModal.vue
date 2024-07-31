@@ -21,7 +21,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios';
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const props = defineProps({
   show: Boolean,
@@ -33,6 +34,8 @@ const email = ref('')
 const password = ref('')
 const errorMsg = ref('')
 
+const router = useRouter()
+
 const close = () => {
   emit('close')
 }
@@ -40,12 +43,13 @@ const close = () => {
 const login = async () => {
   errorMsg.value = ''
   try {
-    const resp = await axios.post('http://localhost:3000/api/v1/auth/login', {
+    const response = await axios.post('http://localhost:3000/api/v1/auth/login', {
       email: email.value,
       password: password.value
     })
-    emit('login', resp.data)
+    emit('login', response.data)
     close()
+    router.push({ name: 'Home' })
   } catch (error) {
     errorMsg.value = 'Invalid email or password. Please try again.'
   }
@@ -65,7 +69,7 @@ const login = async () => {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
-  color: black;
+  color: black
 }
 
 .modal-content {
