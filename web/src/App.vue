@@ -36,6 +36,13 @@ const closeLoginModal = () => {
 const closeRegisterModal = () => {
   showRegisterModal.value = false
 }
+
+const handleLoginSuccess = (data) => {
+  closeLoginModal()
+}
+const handleRegisterSuccess = (data) => {
+  closeLoginModal()
+}
 </script>
 
 <template>
@@ -60,10 +67,10 @@ const closeRegisterModal = () => {
     </div>
 
     <!-- Login Modal -->
-    <LoginModal :show="showLoginModal" @close="closeLoginModal" />
+    <LoginModal :show="showLoginModal" @close="closeLoginModal" @login="handleLoginSuccess"/>
 
     <!-- Register Modal -->
-    <RegisterModal :show="showRegisterModal" @close="closeRegisterModal" />
+    <RegisterModal :show="showRegisterModal" @close="closeRegisterModal" @register="handleRegisterSuccess"/>
   </main>
 </template>
 
